@@ -13,7 +13,7 @@
 #include <stdlib.h>
 #include <sys/ioctl.h>
 #include <unistd.h>
-
+#include <stdio.h>
 #include <nsm.h>
 
 /* Maximum number of bytes NSM random response returns. */
@@ -59,14 +59,16 @@ void aws_nitro_enclaves_library_clean_up(void) {
 }
 
 int aws_nitro_enclaves_library_seed_entropy(uint64_t num_bytes) {
-
+    printf("Started printf");
     int nsm_fd = nsm_lib_init();
     if (nsm_fd < 0) {
+	printf("E1");    
         return AWS_OP_ERR;
     }
 
     int dev_fd = open("/dev/random", O_WRONLY);
     if (dev_fd < 0) {
+	printf("E2");    
         nsm_lib_exit(nsm_fd);
         return AWS_OP_ERR;
     }
@@ -79,21 +81,28 @@ int aws_nitro_enclaves_library_seed_entropy(uint64_t num_bytes) {
 
         /* Yields up to 256 bytes */
         int rc = nsm_get_random(nsm_fd, buf, &buf_len);
-        if (rc)
+        if (rc) {
+	    printf("E3");		
             goto err;
+	}
 
         if (buf_len == 0) {
+		printf("E4");
             /* NSM starts yielding zero entropy */
             goto err;
         }
 
-        if ((ssize_t)buf_len != write(dev_fd, buf, buf_len))
+        if ((ssize_t)buf_len != write(dev_fd, buf, buf_len)) {
+	    printf("E5");
             goto err;
+	}    
 
         int bits = buf_len * 8;
         rc = ioctl(dev_fd, RNDADDTOENTCNT, &bits);
-        if (rc < 0)
+        if (rc < 0) {
+	    printf("E6");	
             goto err;
+	}    
 
         count += buf_len;
     }

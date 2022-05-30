@@ -12,7 +12,7 @@
 
 #include <errno.h>
 #include <unistd.h>
-
+#include <stdio.h>
 #define SERVICE_PORT 3000
 #define PROXY_PORT 8000
 #define BUF_SIZE 8192
@@ -380,6 +380,7 @@ int main(int argc, char **argv) {
     int rc = 0;
     struct app_ctx app_ctx;
 
+    printf("Checkpoint1");
     /* Initialize the SDK */
     aws_nitro_enclaves_library_init(NULL);
 
